@@ -4,7 +4,7 @@
 
 A modern, cinematic photography portfolio that automatically syncs with your Flickr account. Upload photos to Flickr, tag them as "portfolio", and they instantly appear on your website. No manual uploading, no databases, no hassle.
 
-![Portfolio Screenshot](https://via.placeholder.com/1200x600/000000/FFFFFF?text=Your+Portfolio+Here)
+[Sample Portfolio](https://www.theunmarkedroad.com/)
 
 ## ✨ What You Get
 
