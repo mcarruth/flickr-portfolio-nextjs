@@ -9,6 +9,7 @@ import {
   getPortfolioPhotos,
   getFlickrPhotoUrl,
 } from '@/lib/flickr';
+import ExifPanel from './ExifPanel';
 
 export default function PhotoGallery() {
   const [photos, setPhotos] = useState<FlickrPhoto[]>([]);
@@ -16,6 +17,7 @@ export default function PhotoGallery() {
   const [loading, setLoading] = useState(true);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [direction, setDirection] = useState(0);
+  const [showExif, setShowExif] = useState(false);
 
   // Fetch photos on mount
   useEffect(() => {
@@ -75,6 +77,10 @@ export default function PhotoGallery() {
         goToNext();
       } else if (e.key === 'ArrowLeft') {
         goToPrevious();
+      } else if (e.key === 'e' || e.key === 'E') {
+        setShowExif((prev) => !prev);
+      } else if (e.key === 'Escape') {
+        setShowExif(false);
       }
     };
 
@@ -311,16 +317,36 @@ export default function PhotoGallery() {
             <span className="text-zinc-400 text-sm font-mono">
               {currentIndex + 1} / {photos.length}
             </span>
-            <Link
-              href={`/photo/${currentPhoto.id}`}
-              className="text-white/80 hover:text-white transition-colors text-sm tracking-wide uppercase"
+            <button
+              onClick={() => setShowExif(true)}
+              className="text-white/80 hover:text-white transition-colors"
+              aria-label="Show photo details"
             >
-              Details
-            </Link>
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" strokeWidth={1.5} />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M12 16v-4m0-4h.01"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </motion.div>
 
+      {/* EXIF Panel */}
+      <ExifPanel
+        photoId={currentPhoto.id}
+        isOpen={showExif}
+        onClose={() => setShowExif(false)}
+      />
     </div>
   );
 }
