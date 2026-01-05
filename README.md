@@ -6,6 +6,27 @@ A modern, cinematic photography portfolio that automatically syncs with your Fli
 
 [Sample Portfolio](https://www.theunmarkedroad.com/)
 
+## 📸 Screenshots
+
+<div align="center">
+
+### Gallery View
+![Full-screen photo gallery with smooth transitions](screenshots/gallery.png)
+
+### Album Cloud
+![Encourage browsing photos by albums](screenshots/albums.png)
+
+### Tag Cloud
+![Interactive tag cloud for browsing photos by category](screenshots/tags.png)
+
+### Map View
+![Interactive map showing geotagged photos](screenshots/map.png)
+
+### Photo Details
+![Photo detail page with EXIF data and camera settings](screenshots/detail.png)
+
+</div>
+
 ## ✨ What You Get
 
 - **🖼️ Full-Screen Gallery** - Dramatic, immersive photo display with smooth transitions
