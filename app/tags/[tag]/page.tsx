@@ -1,56 +1,58 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   FlickrPhoto,
-  FlickrAlbum,
-  getAlbumPhotos,
-  getUserAlbums,
+  getPhotosByTag,
   getFlickrPhotoUrl,
 } from '@/lib/flickr';
 
-export default function AlbumViewPage() {
+export default function TagFilterPage() {
   const params = useParams();
-  const router = useRouter();
-  const albumId = params.id as string;
+  const tag = decodeURIComponent(params.tag as string);
 
-  const [album, setAlbum] = useState<FlickrAlbum | null>(null);
   const [photos, setPhotos] = useState<FlickrPhoto[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [direction, setDirection] = useState(0);
 
+  // Fetch photos for this tag
   useEffect(() => {
-    async function loadAlbum() {
+    async function loadPhotos() {
       try {
-        // Get album info
-        const albums = await getUserAlbums();
-        const currentAlbum = albums.find((a) => a.id === albumId);
-
-        if (!currentAlbum) {
-          router.push('/albums');
-          return;
-        }
-
-        setAlbum(currentAlbum);
-
-        // Get portfolio photos from this album
-        const albumPhotos = await getAlbumPhotos(albumId);
-        setPhotos(albumPhotos);
+        const tagPhotos = await getPhotosByTag(tag);
+        setPhotos(tagPhotos);
         setLoading(false);
       } catch (error) {
-        console.error('Error loading album:', error);
+        console.error('Error loading photos for tag:', error);
         setLoading(false);
       }
     }
+    loadPhotos();
+  }, [tag]);
 
-    loadAlbum();
-  }, [albumId, router]);
+  // Preload adjacent photos
+  useEffect(() => {
+    if (photos.length === 0) return;
+
+    const preloadImage = (index: number, size: 'xlarge' | 'large') => {
+      if (index < 0 || index >= photos.length) return;
+      const img = document.createElement('img');
+      img.src = getFlickrPhotoUrl(photos[index], size);
+    };
+
+    const prevIndex = (currentIndex - 1 + photos.length) % photos.length;
+    const nextIndex = (currentIndex + 1) % photos.length;
+
+    preloadImage(prevIndex, 'xlarge');
+    preloadImage(nextIndex, 'xlarge');
+    preloadImage(currentIndex, 'large');
+  }, [currentIndex, photos]);
 
   // Navigation functions
   const goToNext = useCallback(() => {
@@ -70,9 +72,7 @@ export default function AlbumViewPage() {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        router.push('/albums');
-      } else if (e.key === 'ArrowRight') {
+      if (e.key === 'ArrowRight') {
         goToNext();
       } else if (e.key === 'ArrowLeft') {
         goToPrevious();
@@ -81,7 +81,7 @@ export default function AlbumViewPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [goToNext, goToPrevious, router]);
+  }, [goToNext, goToPrevious]);
 
   // Touch/swipe support
   const [touchStart, setTouchStart] = useState(0);
@@ -112,22 +112,22 @@ export default function AlbumViewPage() {
           animate={{ opacity: 1 }}
           className="text-zinc-400 text-lg"
         >
-          Loading album...
+          Loading photos...
         </motion.div>
       </div>
     );
   }
 
-  if (!album || photos.length === 0) {
+  if (photos.length === 0) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black">
         <div className="text-zinc-400 text-lg text-center px-4">
-          <p className="mb-4">No portfolio photos in this album.</p>
+          <p className="mb-4">No photos found with tag &quot;{tag}&quot;</p>
           <Link
-            href="/albums"
+            href="/tags"
             className="text-white/80 hover:text-white transition-colors"
           >
-            Back to Albums
+            Back to all tags
           </Link>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function AlbumViewPage() {
   }
 
   const currentPhoto = photos[currentIndex];
-  const photoUrl = getFlickrPhotoUrl(currentPhoto, 'large');
+  const photoUrl = getFlickrPhotoUrl(currentPhoto, 'xlarge');
 
   // Slide animation variants
   const variants = {
@@ -176,13 +176,13 @@ export default function AlbumViewPage() {
         <div className="flex items-center gap-6">
           <Link
             href="/albums"
-            className="text-white text-sm tracking-wide border-b-2 border-white pb-1"
+            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
           >
             Albums
           </Link>
           <Link
             href="/tags"
-            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+            className="text-white text-sm tracking-wide border-b-2 border-white pb-1"
           >
             Tags
           </Link>
@@ -214,12 +214,13 @@ export default function AlbumViewPage() {
             <div className="relative w-full h-full">
               <Image
                 src={photoUrl}
-                alt={currentPhoto.title || 'Album photo'}
+                alt={currentPhoto.title || 'Portfolio photo'}
                 fill
                 className="object-contain"
                 priority={currentIndex === 0}
                 onLoad={() => setImageLoaded(true)}
                 sizes="100vw"
+                unoptimized
               />
             </div>
           </motion.div>
@@ -240,67 +241,63 @@ export default function AlbumViewPage() {
       </div>
 
       {/* Navigation Arrows */}
-      {photos.length > 1 && (
-        <>
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            onClick={goToPrevious}
-            className="fixed left-6 top-1/2 -translate-y-1/2 z-40 text-white/60 hover:text-white transition-all hover:scale-110"
-            aria-label="Previous photo"
-          >
-            <svg
-              className="w-12 h-12"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </motion.button>
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        onClick={goToPrevious}
+        className="fixed left-6 top-1/2 -translate-y-1/2 z-40 text-white/60 hover:text-white transition-all hover:scale-110"
+        aria-label="Previous photo"
+      >
+        <svg
+          className="w-12 h-12"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+      </motion.button>
 
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            onClick={goToNext}
-            className="fixed right-6 top-1/2 -translate-y-1/2 z-40 text-white/60 hover:text-white transition-all hover:scale-110"
-            aria-label="Next photo"
-          >
-            <svg
-              className="w-12 h-12"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </motion.button>
-        </>
-      )}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        onClick={goToNext}
+        className="fixed right-6 top-1/2 -translate-y-1/2 z-40 text-white/60 hover:text-white transition-all hover:scale-110"
+        aria-label="Next photo"
+      >
+        <svg
+          className="w-12 h-12"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </motion.button>
 
       {/* Photo Info Bar */}
       <motion.div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black/80 to-transparent px-6 py-6"
+        className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black/90 to-transparent px-6 py-8"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
+        <div className="flex items-end justify-between">
+          <div className="flex-1 max-w-2xl">
             {currentPhoto.title && (
-              <h2 className="text-white text-lg font-light mb-1">
+              <h2 className="text-white text-xl font-light mb-2">
                 {currentPhoto.title}
               </h2>
             )}
@@ -314,19 +311,20 @@ export default function AlbumViewPage() {
               </p>
             )}
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-zinc-500 text-sm">
+          <div className="flex items-center gap-6">
+            <span className="text-zinc-400 text-sm font-mono">
               {currentIndex + 1} / {photos.length}
             </span>
             <Link
               href={`/photo/${currentPhoto.id}`}
-              className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+              className="text-white/80 hover:text-white transition-colors text-sm tracking-wide uppercase"
             >
-              View Details
+              Details
             </Link>
           </div>
         </div>
       </motion.div>
+
     </div>
   );
 }

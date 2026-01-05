@@ -244,3 +244,54 @@ export async function getPortfolioAlbums(): Promise<FlickrAlbum[]> {
 
   return portfolioAlbums;
 }
+
+/**
+ * Extract all unique tags from portfolio photos with their counts
+ */
+export interface TagWithCount {
+  name: string;
+  count: number;
+}
+
+export async function getPortfolioTags(): Promise<TagWithCount[]> {
+  const photos = await getPortfolioPhotos();
+  const tagCounts = new Map<string, number>();
+
+  // Count occurrences of each tag
+  photos.forEach((photo) => {
+    if (photo.tags) {
+      const tags = photo.tags.split(' ').filter(tag => tag && tag !== 'portfolio');
+      tags.forEach((tag) => {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+      });
+    }
+  });
+
+  // Convert to array and sort by count (descending)
+  return Array.from(tagCounts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Get photos filtered by a specific tag
+ */
+export async function getPhotosByTag(tag: string): Promise<FlickrPhoto[]> {
+  const photos = await getPortfolioPhotos();
+  return photos.filter((photo) =>
+    photo.tags?.split(' ').includes(tag)
+  );
+}
+
+/**
+ * Get photos that have geolocation data
+ */
+export async function getGeotaggedPhotos(): Promise<FlickrPhoto[]> {
+  const photos = await getPortfolioPhotos();
+  return photos.filter((photo) =>
+    photo.latitude !== undefined &&
+    photo.longitude !== undefined &&
+    photo.latitude !== 0 &&
+    photo.longitude !== 0
+  );
+}

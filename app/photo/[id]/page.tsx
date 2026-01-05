@@ -140,7 +140,7 @@ export default function PhotoDetailPage() {
 
   return (
     <div className="fixed inset-0 bg-black overflow-hidden">
-      {/* Back Navigation */}
+      {/* Navigation */}
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -148,30 +148,42 @@ export default function PhotoDetailPage() {
       >
         <Link
           href="/"
-          className="text-white/80 hover:text-white transition-colors flex items-center gap-2"
+          className="text-white text-xl font-light tracking-wider hover:text-white/80 transition-colors"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          Back
+          Portfolio
         </Link>
-        <button
-          onClick={() => setShowExif(!showExif)}
-          className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
-        >
-          {showExif ? 'Hide' : 'Show'} Details
-        </button>
+        <div className="flex items-center gap-6">
+          <Link
+            href="/albums"
+            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+          >
+            Albums
+          </Link>
+          <Link
+            href="/tags"
+            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+          >
+            Tags
+          </Link>
+          <Link
+            href="/map"
+            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+          >
+            Map
+          </Link>
+        </div>
       </motion.nav>
+
+      {/* Show/Hide Details Button - Separate from nav */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        onClick={() => setShowExif(!showExif)}
+        className="fixed top-6 right-6 z-50 text-white/80 hover:text-white transition-colors text-sm tracking-wide bg-black/50 px-4 py-2 rounded backdrop-blur-sm"
+      >
+        {showExif ? 'Hide' : 'Show'} Details
+      </motion.button>
 
       {/* Main Photo */}
       <div className="relative w-full h-full flex items-center justify-center">
@@ -338,12 +350,13 @@ export default function PhotoDetailPage() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {photoInfo.tags.tag.map((tag) => (
-                      <span
+                      <Link
                         key={tag.id}
-                        className="px-3 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-full"
+                        href={`/tags/${encodeURIComponent(tag.raw)}`}
+                        className="px-3 py-1 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white text-xs rounded-full transition-colors"
                       >
                         {tag.raw}
-                      </span>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -353,15 +366,6 @@ export default function PhotoDetailPage() {
         )}
       </AnimatePresence>
 
-      {/* Hint */}
-      <motion.div
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 0 }}
-        transition={{ delay: 3, duration: 1 }}
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zinc-600 text-sm text-center pointer-events-none"
-      >
-        <p>Press E to toggle details, ESC to go back</p>
-      </motion.div>
     </div>
   );
 }

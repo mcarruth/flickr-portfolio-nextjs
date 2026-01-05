@@ -163,15 +163,32 @@ export default function PhotoGallery() {
         transition={{ delay: 0.5 }}
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-gradient-to-b from-black/80 to-transparent"
       >
-        <div className="text-white text-xl font-light tracking-wider">
-          Portfolio
-        </div>
         <Link
-          href="/albums"
-          className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+          href="/"
+          className="text-white text-xl font-light tracking-wider hover:text-white/80 transition-colors"
         >
-          Albums
+          Portfolio
         </Link>
+        <div className="flex items-center gap-6">
+          <Link
+            href="/albums"
+            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+          >
+            Albums
+          </Link>
+          <Link
+            href="/tags"
+            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+          >
+            Tags
+          </Link>
+          <Link
+            href="/map"
+            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+          >
+            Map
+          </Link>
+        </div>
       </motion.nav>
 
       {/* Main Photo Display */}
@@ -304,15 +321,6 @@ export default function PhotoGallery() {
         </div>
       </motion.div>
 
-      {/* Keyboard hint (fades out after a few seconds) */}
-      <motion.div
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 0 }}
-        transition={{ delay: 3, duration: 1 }}
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zinc-600 text-sm text-center pointer-events-none"
-      >
-        <p>Use arrow keys or swipe to navigate</p>
-      </motion.div>
     </div>
   );
 }

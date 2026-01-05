@@ -53,25 +53,29 @@ export default function AlbumsPage() {
       >
         <Link
           href="/"
-          className="text-white/80 hover:text-white transition-colors flex items-center gap-2"
+          className="text-white text-xl font-light tracking-wider hover:text-white/80 transition-colors"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          Back to Gallery
+          Portfolio
         </Link>
-        <div className="text-white text-xl font-light tracking-wider">
-          Albums
+        <div className="flex items-center gap-6">
+          <Link
+            href="/albums"
+            className="text-white text-sm tracking-wide border-b-2 border-white pb-1"
+          >
+            Albums
+          </Link>
+          <Link
+            href="/tags"
+            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+          >
+            Tags
+          </Link>
+          <Link
+            href="/map"
+            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+          >
+            Map
+          </Link>
         </div>
       </motion.nav>
 
