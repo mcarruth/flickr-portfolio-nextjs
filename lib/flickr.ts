@@ -25,6 +25,10 @@ export interface FlickrPhoto {
   url_o?: string;
   height_o?: number;
   width_o?: number;
+  url_q?: string;  // 150x150 square thumbnail
+  url_z?: string;  // 640px on longest side
+  url_c?: string;  // 800px on longest side
+  url_b?: string;  // 1024px on longest side
 }
 
 export interface FlickrPhotoInfo {
@@ -84,22 +88,36 @@ export function getFlickrPhotoUrl(
   photo: FlickrPhoto,
   size: 'thumbnail' | 'medium' | 'large' | 'xlarge' | 'original' = 'large'
 ): string {
-  const { server, id, secret, farm } = photo;
+  // Prefer Flickr-provided URLs when available (uses live.staticflickr.com)
+  // These are more reliable than constructing URLs with farm subdomains
 
-  // Size suffixes: https://www.flickr.com/services/api/misc.urls.html
-  // Using more compatible sizes that work with older photos
-  const sizeSuffix = {
-    thumbnail: '_q', // 150x150 square - always available
-    medium: '_z',    // 640px on longest side - always available
-    large: '_z',     // 640px (using _z instead of _b for better compatibility)
-    xlarge: '_z',    // 640px (using _z instead of _b for better compatibility)
-    original: '_o'   // original size
-  };
-
-  // If original URL is available, use it for original size
+  // Check for Flickr-provided URL based on size
   if (size === 'original' && photo.url_o) {
     return photo.url_o;
   }
+
+  // For other sizes, check if Flickr provided the URL
+  // url_q = 150x150 square, url_z = 640px, url_c = 800px, url_b = 1024px
+  const flickrProvidedUrl =
+    size === 'thumbnail' ? photo.url_q :
+    size === 'medium' ? photo.url_z :
+    size === 'large' ? photo.url_z :
+    size === 'xlarge' ? photo.url_c || photo.url_b :
+    undefined;
+
+  if (flickrProvidedUrl) {
+    return flickrProvidedUrl;
+  }
+
+  // Fallback: construct URL manually (less reliable for newer photos)
+  const { server, id, secret, farm } = photo;
+  const sizeSuffix = {
+    thumbnail: '_q', // 150x150 square
+    medium: '_z',    // 640px on longest side
+    large: '_z',     // 640px
+    xlarge: '_z',    // 640px
+    original: '_o'   // original size
+  };
 
   const suffix = sizeSuffix[size];
   return `https://farm${farm}.staticflickr.com/${server}/${id}_${secret}${suffix}.jpg`;
@@ -115,7 +133,7 @@ export async function getPortfolioPhotos(limit: number = 100): Promise<FlickrPho
     user_id: process.env.NEXT_PUBLIC_FLICKR_USER_ID || '',
     tags: 'portfolio',
     tag_mode: 'all',
-    extras: 'date_taken,tags,geo,views,url_o',
+    extras: 'date_taken,tags,geo,views,url_o,url_z,url_c,url_b,url_q',
     per_page: limit.toString(),
     format: 'json',
     nojsoncallback: '1',
