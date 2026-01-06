@@ -76,6 +76,9 @@ const FLICKR_API_BASE = 'https://www.flickr.com/services/rest/';
 /**
  * Build Flickr photo URL for different sizes
  * https://www.flickr.com/services/api/misc.urls.html
+ *
+ * Note: Uses medium 640 (_z) as default for better compatibility with older photos.
+ * Before May 2010, large sizes (_b) may not exist for all photos.
  */
 export function getFlickrPhotoUrl(
   photo: FlickrPhoto,
@@ -84,11 +87,12 @@ export function getFlickrPhotoUrl(
   const { server, id, secret, farm } = photo;
 
   // Size suffixes: https://www.flickr.com/services/api/misc.urls.html
+  // Using more compatible sizes that work with older photos
   const sizeSuffix = {
-    thumbnail: '_q', // 150x150 square
-    medium: '_c',    // 800px on longest side
-    large: '_b',     // 1024px on longest side
-    xlarge: '_b',    // Use _b (1024px) - more reliable than _h
+    thumbnail: '_q', // 150x150 square - always available
+    medium: '_z',    // 640px on longest side - always available
+    large: '_z',     // 640px (using _z instead of _b for better compatibility)
+    xlarge: '_z',    // 640px (using _z instead of _b for better compatibility)
     original: '_o'   // original size
   };
 
