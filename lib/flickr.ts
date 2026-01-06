@@ -115,7 +115,7 @@ export async function getPortfolioPhotos(limit: number = 100): Promise<FlickrPho
     per_page: limit.toString(),
     format: 'json',
     nojsoncallback: '1',
-    sort: 'date-taken-desc'
+    sort: 'date-posted-desc' // Sort by upload date to match flogr and flickr-portfolio
   });
 
   console.log('Fetching portfolio photos from Flickr...');
