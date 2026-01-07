@@ -254,12 +254,12 @@ Uses these Flickr API methods:
 
 ### Album Tags (Optional)
 
-By default, the Albums page shows Flickr albums. However, you can switch to a **tag-based album system** for more flexibility.
+The Albums page uses a **tag-based album system** for organizing your portfolio into curated categories. By default, the Albums feature is **disabled** (nav link hidden) until you configure it.
 
-**Why use tag-based albums?**
+**Benefits:**
 - One photo can appear in multiple "albums"
 - Accurate photo counts (only portfolio-tagged photos)
-- No need to manually organize albums on Flickr
+- No need to manually organize Flickr albums
 - Automatic categorization based on your existing tags
 
 **How to enable:**
@@ -272,10 +272,11 @@ NEXT_PUBLIC_ALBUM_TAGS=landscapes,portraits,street,travel
 Replace with your own category tags (comma-separated, no spaces).
 
 **What happens:**
-- **Albums page** shows only these curated categories
-- **Tags page** shows all OTHER tags (for browsing)
+- **Albums nav link appears** in the navigation bar
+- **Albums page** shows your curated categories as "albums"
+- **Tags page** shows all OTHER tags (for browsing/discovery)
 - Photos with multiple tags appear in multiple albums
-- If `NEXT_PUBLIC_ALBUM_TAGS` is empty/unset, the Albums page is hidden
+- Leave empty to hide the Albums feature entirely
 
 **Example workflow:**
 1. Tag your best landscape photos: `portfolio`, `landscapes`
