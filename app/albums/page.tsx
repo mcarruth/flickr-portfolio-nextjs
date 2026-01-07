@@ -5,20 +5,23 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  FlickrAlbum,
-  getPortfolioAlbums,
+  TagBasedAlbum,
+  getTagBasedAlbums,
   getFlickrPhotoUrl,
 } from '@/lib/flickr';
+import { getAlbumTags, hasAlbumTags } from '@/lib/config';
 
 export default function AlbumsPage() {
-  const [albums, setAlbums] = useState<FlickrAlbum[]>([]);
+  const [albums, setAlbums] = useState<TagBasedAlbum[]>([]);
   const [loading, setLoading] = useState(true);
+  const showAlbums = hasAlbumTags();
 
   useEffect(() => {
     async function loadAlbums() {
       try {
-        const portfolioAlbums = await getPortfolioAlbums();
-        setAlbums(portfolioAlbums);
+        const albumTags = getAlbumTags();
+        const tagBasedAlbums = await getTagBasedAlbums(albumTags);
+        setAlbums(tagBasedAlbums);
         setLoading(false);
       } catch (error) {
         console.error('Error loading albums:', error);
@@ -58,12 +61,14 @@ export default function AlbumsPage() {
           Portfolio
         </Link>
         <div className="flex items-center gap-6">
-          <Link
-            href="/albums"
-            className="text-white text-sm tracking-wide border-b-2 border-white pb-1"
-          >
-            Albums
-          </Link>
+          {showAlbums && (
+            <Link
+              href="/albums"
+              className="text-white text-sm tracking-wide border-b-2 border-white pb-1"
+            >
+              Albums
+            </Link>
+          )}
           <Link
             href="/tags"
             className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
@@ -83,10 +88,10 @@ export default function AlbumsPage() {
       <div className="pt-24 pb-12 px-6 max-w-7xl mx-auto">
         {albums.length === 0 ? (
           <div className="text-center text-zinc-400 py-20">
-            <p className="mb-4">No albums with portfolio photos found.</p>
+            <p className="mb-4">No album tags configured.</p>
             <p className="text-sm text-zinc-500">
-              Create albums on Flickr and tag photos with &quot;portfolio&quot; to
-              display them here.
+              Add NEXT_PUBLIC_ALBUM_TAGS to your .env.local file to organize
+              your portfolio into albums.
             </p>
           </div>
         ) : (
@@ -105,25 +110,26 @@ export default function AlbumsPage() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {albums.map((album) => {
-              // Construct album cover URL
-              const coverUrl = `https://farm${album.farm}.staticflickr.com/${album.server}/${album.primary}_${album.secret}_b.jpg`;
+              if (!album.coverPhoto) return null;
+
+              const coverUrl = getFlickrPhotoUrl(album.coverPhoto, 'large');
 
               return (
                 <motion.div
-                  key={album.id}
+                  key={album.tag}
                   variants={{
                     hidden: { opacity: 0, y: 20 },
                     visible: { opacity: 1, y: 0 },
                   }}
                 >
                   <Link
-                    href={`/albums/${album.id}`}
+                    href={`/tags/${encodeURIComponent(album.tag)}`}
                     className="group block relative aspect-[4/3] overflow-hidden rounded-lg bg-zinc-900"
                   >
                     {/* Album Cover Image */}
                     <Image
                       src={coverUrl}
-                      alt={album.title._content}
+                      alt={album.tag}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -134,11 +140,11 @@ export default function AlbumsPage() {
 
                     {/* Album Info */}
                     <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h3 className="text-white text-xl font-light mb-2 group-hover:text-zinc-100 transition-colors">
-                        {album.title._content}
+                      <h3 className="text-white text-xl font-light mb-2 group-hover:text-zinc-100 transition-colors capitalize">
+                        {album.tag}
                       </h3>
                       <p className="text-zinc-400 text-sm">
-                        {album.photos} photo{album.photos !== 1 ? 's' : ''}
+                        {album.count} photo{album.count !== 1 ? 's' : ''}
                       </p>
                     </div>
 

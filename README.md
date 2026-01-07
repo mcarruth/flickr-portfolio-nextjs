@@ -250,15 +250,51 @@ Uses these Flickr API methods:
 - `flickr.photosets.getList` - Get albums
 - `flickr.photosets.getPhotos` - Get album photos
 
+## ⚙️ Advanced Configuration
+
+### Album Tags (Optional)
+
+By default, the Albums page shows Flickr albums. However, you can switch to a **tag-based album system** for more flexibility.
+
+**Why use tag-based albums?**
+- One photo can appear in multiple "albums"
+- Accurate photo counts (only portfolio-tagged photos)
+- No need to manually organize albums on Flickr
+- Automatic categorization based on your existing tags
+
+**How to enable:**
+
+Add this to your `.env.local` file:
+```
+NEXT_PUBLIC_ALBUM_TAGS=landscapes,portraits,street,travel
+```
+
+Replace with your own category tags (comma-separated, no spaces).
+
+**What happens:**
+- **Albums page** shows only these curated categories
+- **Tags page** shows all OTHER tags (for browsing)
+- Photos with multiple tags appear in multiple albums
+- If `NEXT_PUBLIC_ALBUM_TAGS` is empty/unset, the Albums page is hidden
+
+**Example workflow:**
+1. Tag your best landscape photos: `portfolio`, `landscapes`
+2. Tag your best portrait photos: `portfolio`, `portraits`
+3. Tag a landscape that's also black & white: `portfolio`, `landscapes`, `bw`
+4. Set `NEXT_PUBLIC_ALBUM_TAGS=landscapes,portraits`
+5. Result:
+   - **Albums page**: Shows "Landscapes" and "Portraits" as albums
+   - **Tags page**: Shows "bw" and other browsing tags
+   - The B&W landscape appears in the Landscapes album
+
 ## 💡 Tips & Best Practices
 
 1. **Curate carefully** - Only tag your best work as "portfolio"
-2. **Use albums** - Group related photos for better organization
+2. **Tag thoughtfully** - Tags become browsable categories (and optionally, albums)
 3. **Add descriptions** - Flickr descriptions appear on detail pages
-4. **Tag thoughtfully** - Tags become browsable categories
-5. **Geotag when relevant** - Makes the map view more interesting
-6. **Keep photos public** - Private photos won't appear
-7. **High-quality images** - Upload your best resolution
+4. **Geotag when relevant** - Makes the map view more interesting
+5. **Keep photos public** - Private photos won't appear
+6. **High-quality images** - Upload your best resolution
 
 ## 📝 License
 

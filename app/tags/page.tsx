@@ -3,17 +3,20 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { TagWithCount, getPortfolioTags } from '@/lib/flickr';
+import { TagWithCount, getBrowsingTags } from '@/lib/flickr';
+import { getAlbumTags, hasAlbumTags } from '@/lib/config';
 
 export default function TagsPage() {
   const [tags, setTags] = useState<TagWithCount[]>([]);
   const [loading, setLoading] = useState(true);
+  const showAlbums = hasAlbumTags();
 
   useEffect(() => {
     async function loadTags() {
       try {
-        const portfolioTags = await getPortfolioTags();
-        setTags(portfolioTags);
+        const albumTags = getAlbumTags();
+        const browsingTags = await getBrowsingTags(albumTags);
+        setTags(browsingTags);
         setLoading(false);
       } catch (error) {
         console.error('Error loading tags:', error);
@@ -77,12 +80,14 @@ export default function TagsPage() {
           Portfolio
         </Link>
         <div className="flex items-center gap-6">
-          <Link
-            href="/albums"
-            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
-          >
-            Albums
-          </Link>
+          {showAlbums && (
+            <Link
+              href="/albums"
+              className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+            >
+              Albums
+            </Link>
+          )}
           <Link
             href="/tags"
             className="text-white text-sm tracking-wide border-b-2 border-white pb-1"

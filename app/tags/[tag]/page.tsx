@@ -11,6 +11,7 @@ import {
   getFlickrPhotoUrl,
 } from '@/lib/flickr';
 import ExifPanel from '@/components/ExifPanel';
+import { hasAlbumTags } from '@/lib/config';
 
 export default function TagFilterPage() {
   const params = useParams();
@@ -18,6 +19,7 @@ export default function TagFilterPage() {
 
   const [photos, setPhotos] = useState<FlickrPhoto[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const showAlbums = hasAlbumTags();
   const [loading, setLoading] = useState(true);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [direction, setDirection] = useState(0);
@@ -181,12 +183,14 @@ export default function TagFilterPage() {
           Portfolio
         </Link>
         <div className="flex items-center gap-6">
-          <Link
-            href="/albums"
-            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
-          >
-            Albums
-          </Link>
+          {showAlbums && (
+            <Link
+              href="/albums"
+              className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+            >
+              Albums
+            </Link>
+          )}
           <Link
             href="/tags"
             className="text-white text-sm tracking-wide border-b-2 border-white pb-1"

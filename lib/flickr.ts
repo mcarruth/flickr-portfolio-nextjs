@@ -317,3 +317,68 @@ export async function getGeotaggedPhotos(): Promise<FlickrPhoto[]> {
     photo.longitude !== 0
   );
 }
+
+/**
+ * Tag-based album interface
+ * Represents a virtual "album" based on a specific tag
+ */
+export interface TagBasedAlbum {
+  tag: string;
+  count: number;
+  coverPhoto: FlickrPhoto | null;
+}
+
+/**
+ * Get tag-based albums from ALBUM_TAGS configuration
+ * Returns albums only for the tags specified in NEXT_PUBLIC_ALBUM_TAGS
+ */
+export async function getTagBasedAlbums(albumTags: string[]): Promise<TagBasedAlbum[]> {
+  if (albumTags.length === 0) {
+    return [];
+  }
+
+  const photos = await getPortfolioPhotos();
+  const albums: TagBasedAlbum[] = [];
+
+  // For each configured album tag, count photos and get cover photo
+  for (const tag of albumTags) {
+    const tagPhotos = photos.filter((photo) =>
+      photo.tags?.split(' ').includes(tag)
+    );
+
+    albums.push({
+      tag,
+      count: tagPhotos.length,
+      coverPhoto: tagPhotos.length > 0 ? tagPhotos[0] : null,
+    });
+  }
+
+  return albums;
+}
+
+/**
+ * Get portfolio tags excluding 'portfolio' and album tags
+ * Used for the Tags page to show browsing tags only
+ */
+export async function getBrowsingTags(excludeTags: string[]): Promise<TagWithCount[]> {
+  const photos = await getPortfolioPhotos();
+  const tagCounts = new Map<string, number>();
+
+  // Build exclusion set for faster lookup
+  const excludeSet = new Set(['portfolio', ...excludeTags]);
+
+  // Count occurrences of each tag (excluding portfolio and album tags)
+  photos.forEach((photo) => {
+    if (photo.tags) {
+      const tags = photo.tags.split(' ').filter(tag => tag && !excludeSet.has(tag));
+      tags.forEach((tag) => {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+      });
+    }
+  });
+
+  // Convert to array and sort by count (descending)
+  return Array.from(tagCounts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+}

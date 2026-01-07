@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { FlickrPhoto, getGeotaggedPhotos } from '@/lib/flickr';
+import { hasAlbumTags } from '@/lib/config';
 
 // Dynamically import the map component to avoid SSR issues
 const MapView = dynamic(() => import('@/components/MapView'), {
@@ -19,6 +20,7 @@ const MapView = dynamic(() => import('@/components/MapView'), {
 export default function MapPage() {
   const [photos, setPhotos] = useState<FlickrPhoto[]>([]);
   const [loading, setLoading] = useState(true);
+  const showAlbums = hasAlbumTags();
 
   useEffect(() => {
     async function loadGeotaggedPhotos() {
@@ -63,12 +65,14 @@ export default function MapPage() {
           Portfolio
         </Link>
         <div className="flex items-center gap-6">
-          <Link
-            href="/albums"
-            className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
-          >
-            Albums
-          </Link>
+          {showAlbums && (
+            <Link
+              href="/albums"
+              className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
+            >
+              Albums
+            </Link>
+          )}
           <Link
             href="/tags"
             className="text-white/80 hover:text-white transition-colors text-sm tracking-wide"
