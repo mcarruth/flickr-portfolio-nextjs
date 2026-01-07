@@ -30,7 +30,7 @@ A modern, cinematic photography portfolio that automatically syncs with your Fli
 ## ✨ What You Get
 
 - **🖼️ Full-Screen Gallery** - Dramatic, immersive photo display with smooth transitions
-- **📁 Album Organization** - Browse your work by Flickr albums
+- **📁 Album Organization** - Browse your work by tag-based albums (optional)
 - **🏷️ Tag Filtering** - Explore photos by tag with an interactive tag cloud
 - **🗺️ Map View** - See all your geotagged photos on an interactive map
 - **📸 EXIF Data** - Display camera settings, lens info, and technical details
@@ -106,7 +106,7 @@ Choose one of these platforms (all have free tiers):
 
 1. Upload photos to Flickr (as you normally do)
 2. Tag photos with **"portfolio"** to include them
-3. (Optional) Add photos to albums for album browsing
+3. (Optional) Add category tags for album browsing (see Advanced Configuration)
 4. (Optional) Add location data for map view
 5. Photos appear on your site automatically! 🎉
 
@@ -119,8 +119,8 @@ Choose one of these platforms (all have free tiers):
 - Photos appear instantly (no rebuild needed)
 
 **Organizing:**
-- Create albums on Flickr to group related work
-- Use tags to categorize photos (travel, portraits, etc.)
+- Use tags to categorize photos (travel, portraits, landscapes, etc.)
+- Configure album tags to create curated categories (see Advanced Configuration)
 - Add geotags for photos to appear on the map
 
 **Removing Photos:**
@@ -130,16 +130,15 @@ Choose one of these platforms (all have free tiers):
 ### For Your Visitors (Viewing)
 
 - **Home** - Full-screen slideshow of your portfolio
-- **Albums** - Browse photos organized by album
+- **Albums** - Browse photos by curated categories (if configured)
 - **Tags** - Explore by tag (landscape, portrait, etc.)
 - **Map** - See where photos were taken (for geotagged images)
-- **Details** - Click any photo to see camera settings and EXIF data
 
 **Navigation:**
 - Arrow keys or swipe to move between photos
 - Click navigation arrows on desktop
-- Press `E` to toggle technical details
-- Press `ESC` to go back
+- Press `E` to toggle EXIF overlay with camera settings
+- Press `ESC` to close overlays or go back
 
 ## 🎨 Customization
 
@@ -229,26 +228,24 @@ npm run dev
 flickr-portfolio-nextjs/
 ├── app/
 │   ├── page.tsx              # Home gallery
-│   ├── albums/               # Album pages
+│   ├── albums/               # Tag-based album pages
 │   ├── tags/                 # Tag filtering pages
-│   ├── map/                  # Map view
-│   └── photo/[id]/           # Photo detail with EXIF
+│   └── map/                  # Map view
 ├── components/
-│   ├── PhotoGallery.tsx      # Main gallery component
+│   ├── PhotoGallery.tsx      # Main gallery component with EXIF overlay
 │   └── MapView.tsx           # Map component
 ├── lib/
-│   └── flickr.ts             # Flickr API client
+│   ├── flickr.ts             # Flickr API client
+│   └── config.ts             # Configuration helpers
 └── .env.local                # Your credentials (gitignored)
 ```
 
 ### API Integration
 
 Uses these Flickr API methods:
-- `flickr.photos.search` - Find portfolio photos
-- `flickr.photos.getInfo` - Get metadata
-- `flickr.photos.getExif` - Get camera settings
-- `flickr.photosets.getList` - Get albums
-- `flickr.photosets.getPhotos` - Get album photos
+- `flickr.photos.search` - Find portfolio photos by tag
+- `flickr.photos.getInfo` - Get photo metadata and tags
+- `flickr.photos.getExif` - Get camera settings and technical details
 
 ## ⚙️ Advanced Configuration
 
@@ -292,7 +289,7 @@ Replace with your own category tags (comma-separated, no spaces).
 
 1. **Curate carefully** - Only tag your best work as "portfolio"
 2. **Tag thoughtfully** - Tags become browsable categories (and optionally, albums)
-3. **Add descriptions** - Flickr descriptions appear on detail pages
+3. **Add descriptions** - Flickr descriptions appear in the EXIF overlay
 4. **Geotag when relevant** - Makes the map view more interesting
 5. **Keep photos public** - Private photos won't appear
 6. **High-quality images** - Upload your best resolution
