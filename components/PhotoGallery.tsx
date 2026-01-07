@@ -35,8 +35,9 @@ export default function PhotoGallery() {
   }, []);
 
   // Preload adjacent photos for snappy navigation + detail page size
+  // Only preload AFTER the current image has loaded to avoid race conditions on cold start
   useEffect(() => {
-    if (photos.length === 0) return;
+    if (photos.length === 0 || !imageLoaded) return;
 
     const preloadImage = (index: number, size: 'xlarge' | 'large') => {
       if (index < 0 || index >= photos.length) return;
@@ -53,7 +54,7 @@ export default function PhotoGallery() {
 
     // Preload current photo in 'large' size for detail page
     preloadImage(currentIndex, 'large');
-  }, [currentIndex, photos]);
+  }, [currentIndex, photos, imageLoaded]);
 
   // Navigation functions
   const goToNext = useCallback(() => {
